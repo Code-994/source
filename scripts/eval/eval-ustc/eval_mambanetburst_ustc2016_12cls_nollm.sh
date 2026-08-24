@@ -1,0 +1,32 @@
+#!/bin/bash
+# no_LLMclass推理: 用 MambaNetBurst cls_head 出类别，LLM 只生成文本描述
+
+export PYTHONPATH="/root/autodl-tmp/mmTraffic:/root/autodl-tmp/MambaNetBurst/src:${PYTHONPATH}"
+export TORCH_DTYPE=bfloat16
+
+CHECKPOINT_PATH="/root/autodl-tmp/mmTraffic/output/USTC-TFC-2016/mambanetburst_lora_12cls"
+VT_CKPT="/root/autodl-tmp/mmTraffic/output/USTC-TFC-2016/mambanetburst_lora_12cls/vision_tower/pytorch_model.bin"
+EVAL_DATA="/root/autodl-tmp/mmTraffic/data/USTC-TFC-2016/nlp_output_LLMclass_3000_6000/test.jsonl"
+IMAGE_FOLDER="/root/autodl-tmp/mmTraffic/data/USTC-TFC-2016/USTC-TFC-2016_npy_v3_balacned_3000_6000"
+OUTPUT_DIR="/root/autodl-tmp/mmTraffic/output/USTC-TFC-2016/mambanetburst_lora_12cls/eval_results_nollm"
+
+mkdir -p "$OUTPUT_DIR"
+
+echo ">>> [Eval3-12cls-noLLM] MambaNetBurst cls_head分类 + LLM文本生成"
+echo "    Checkpoint : $CHECKPOINT_PATH"
+echo "    Output     : $OUTPUT_DIR"
+
+conda run -n mambanetbust python \
+    /root/autodl-tmp/mmTraffic/tinyllava/eval/eval_cls_head_qwen_sample_no_LLMclass_mGPU.py \
+    --checkpoint_path   "$CHECKPOINT_PATH" \
+    --vision_tower_path "$VT_CKPT" \
+    --eval_data_path    "$EVAL_DATA" \
+    --image_folder      "$IMAGE_FOLDER" \
+    --output_dir        "$OUTPUT_DIR" \
+    --samples_per_class 20 \
+    --batch_size        4 \
+    --max_new_tokens    500 \
+    --temperature       0.0 \
+    --conv_version      qwen3_instruct \
+    --num_gpus          4 \
+    2>&1 | tee "$OUTPUT_DIR/eval.log"
