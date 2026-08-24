@@ -1,0 +1,41 @@
+# ============================================================
+# MambaNetBurst — Python 依赖列表
+# 安装方式：
+#   pip install -r requirements.txt
+#   pip install -e mamba/          # 本地 mamba 克隆（必须）
+#   pip install causal-conv1d      # 可选，Linux+CUDA 环境推荐
+# ============================================================
+
+# ── 深度学习核心 ─────────────────────────────────────────────
+torch>=2.1.0
+torchvision>=0.16.0
+
+# ── timm（trunc_normal_ / LabelSmoothingCrossEntropy / accuracy）──
+timm>=0.9.0
+
+# ── Mamba-2 内核依赖 ──────────────────────────────────────────
+einops>=0.7.0          # mamba2_simple.py 使用的张量重排操作
+triton>=2.1.0          # Triton GPU kernel（Linux 环境）
+
+# ── 数据处理 ─────────────────────────────────────────────────
+numpy>=1.24.0
+scikit-learn>=1.3.0    # accuracy_score / confusion_matrix / F1
+scapy>=2.5.0           # PCAP 文件解析
+Pillow>=10.0.0         # PNG 兼容加载（load_burst_png / png_to_npy）
+tqdm>=4.65.0
+
+# ── 训练监控 ─────────────────────────────────────────────────
+tensorboard>=2.14.0
+
+# ── 以下需手动安装（不适合通过 pip 自动解析）────────────────
+#
+# 1. 本地 mamba 克隆（提供 mamba_ssm 包）：
+#       pip install -e mamba/
+#
+# 2. causal-conv1d（可选，显著加速 Mamba-2 的 Conv1d 步骤）：
+#       pip install causal-conv1d
+#    仅在 Linux + CUDA 编译环境下可用；
+#    不安装时自动回退到 PyTorch 原生 Conv1d，功能不受影响。
+#
+# 3. huggingface_hub（mamba2.py 需要，mamba2_simple.py 不需要）：
+#    本项目使用 mamba2_simple.py，故此依赖可省略。
